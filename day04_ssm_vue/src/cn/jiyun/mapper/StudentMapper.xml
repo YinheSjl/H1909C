@@ -1,0 +1,53 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jiyun.mapper.StudentMapper">
+
+	<resultMap type="student" id="queryAll">
+		<id column="sid" property="sid"/>
+		<result column="sname" property="sname"/>
+		<result column="sex" property="sex"/>
+		<result column="pic" property="pic"/>
+		<result column="birthday" property="birthday"/>
+		<result column="cid" property="cid"/>
+		<association property="clazz" javaType="Class">
+			<id column="cid" property="cid"/>
+			<result column="cname" property="cname"/>
+		</association>
+	</resultMap>
+	
+	<select id="findAll" parameterType="StudentVo" resultMap="queryAll">
+		select * from student s,class c where s.cid=c.cid
+		<if test="sname!=null and sname!=''">
+			and sname like '%${sname}%'
+		</if>
+		<if test="cid!=null">
+			and s.cid=#{cid}
+		</if>
+		<if test="start!=null and start!=''">
+			and birthday &gt; #{start}
+		</if>
+		<if test="end!=null and end!=''">
+			and birthday &lt; #{end}
+		</if>
+	</select>
+	
+	<select id="findClass" resultType="Class">
+		select * from class
+	</select>
+	
+	<insert id="addStudent" parameterType="Student">
+		insert into student values(null,#{sname},#{sex},null,#{birthday},#{cid})
+	</insert>
+	
+	<update id="updateStu" parameterType="Student">
+		update student set sname=#{sname},sex = #{sex},birthday = #{birthday},cid = #{cid} where sid = #{sid}
+	</update>
+	
+	<delete id="delStu">
+		delete from student where sid in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+		 #{id}
+		</foreach>
+	</delete>
+  
+</mapper>
